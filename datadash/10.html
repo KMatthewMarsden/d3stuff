@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3: Money</title>
+		<script type="text/javascript" src="../d3.js"></script>
+		<style type="text/css">
+			/* No style rules here yet */	
+			rect {
+				-moz-transition: all 0.25s;
+				-o-transition: all 0.25s;
+				-webkit-transition: all 0.25s;
+				transition: all 0.25s;
+			}	
+			rect:hover {
+				fill: orange;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 800;
+			var h = 600;
+			var padding = 40;
+			var barPadding = 10;
+			
+			var dataset, xScale, yScale, xAxis, yAxis;  //Empty, for now
+
+			//For converting strings to Dates
+			var parseTime = d3.timeParse("%B");
+
+			//For converting Dates to strings
+			var formatTime = d3.timeFormat("%e");
+
+			var theScale = d3.scaleLinear()
+				.domain([0, 40000])
+				.range([0, 300]);
+
+			var colourScale = d3.scaleLinear()
+				.domain([0, 28000, 40000])
+				.range(['red', 'green']);
+
+			//Function for converting CSV values from strings to Dates and numbers
+			var rowConverter = function(d) {
+				return {
+					Month: d.Month,
+					Revenue: parseInt(d.Revenue)
+				};
+			}
+
+			//Load in the data
+			d3.csv("revenue.csv", rowConverter, function(data) {
+
+				//Copy data into global dataset
+				dataset = data;
+
+				console.log(dataset);
+
+				yAxis = d3.axisLeft()
+					.scale(theScale)
+					.ticks(10);
+
+				var svg = d3.select("body")
+					.append("svg")
+					.attr("height", h)
+					.attr("width", w);
+
+				svg.selectAll("rect")
+					.data(dataset)
+					.enter()
+					.append("rect")
+					.on("click", function(d) {
+						alert(d.Revenue);
+					})
+					.attr("x", function(d, i) {
+						return i * (w / dataset.length);
+					})
+					.attr("y", function(d) {
+						return h - theScale(d.Revenue);
+					})
+					.attr("fill", function(d) {
+						console.log(colourScale(d.Revenue));
+						return colourScale(d.Revenue);
+					})
+					.attr("width", function(d, i) {
+						return w / dataset.length - barPadding;
+					})
+					.attr("height", function(d, i) {
+						return theScale(d.Revenue);
+					});
+
+				svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(" + padding + ",0)")
+					.call(yAxis);
+			});
+			
+		</script>
+	</body>
+</html>
