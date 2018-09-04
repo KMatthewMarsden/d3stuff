@@ -120,6 +120,8 @@ function makeGraph() {
 				newData = generateData();
 				svg.selectAll("rect")
 					.data(newData)
+					.transition()
+					.duration(3000)
 					.attr("y", function(d) {
 						return h - theScale(d.Revenue);
 					})
